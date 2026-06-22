@@ -1,13 +1,28 @@
 import asyncio
 import json
 import logging
+import os
+
+from aiohttp import web
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import CommandStart
 from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton, WebAppInfo, WebAppData
+from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
+
 from config import BOT_TOKEN, TMA_URL, ADMIN_ID
 
 logging.basicConfig(level=logging.INFO)
 dp = Dispatcher()
+
+# ============================================================
+# НАСТРОЙКИ WEBHOOK (для Render)
+# ============================================================
+# Render сам выдаёт публичный домен вида https://<app-name>.onrender.com
+# Впиши его в переменную окружения WEBHOOK_HOST (без слэша на конце)
+WEBHOOK_HOST = os.getenv("WEBHOOK_HOST", "")
+WEBHOOK_PATH = "/webhook"
+WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
+PORT = int(os.getenv("PORT", 8080))
 
 # ============================================================
 # КЛАВИАТУРЫ
@@ -86,12 +101,36 @@ async def support(message: Message):
     )
 
 # ============================================================
-# ЗАПУСК
+# WEBHOOK LIFECYCLE
 # ============================================================
-async def main():
+async def on_startup(bot: Bot):
+    if WEBHOOK_HOST:
+        await bot.set_webhook(WEBHOOK_URL)
+        logging.info(f"✅ Webhook установлен: {WEBHOOK_URL}")
+    else:
+        logging.warning("⚠️ WEBHOOK_HOST не задан — webhook не установлен!")
+
+async def on_shutdown(bot: Bot):
+    await bot.delete_webhook()
+
+# Простой healthcheck для Render, чтобы он видел что сервис живой
+async def health(request):
+    return web.Response(text="OK")
+
+def main():
     bot = Bot(token=BOT_TOKEN)
-    print("✅ Бот запущен!")
-    await dp.start_polling(bot)
+
+    dp.startup.register(on_startup)
+    dp.shutdown.register(on_shutdown)
+
+    app = web.Application()
+    app.router.add_get("/", health)
+
+    SimpleRequestHandler(dispatcher=dp, bot=bot).register(app, path=WEBHOOK_PATH)
+    setup_application(app, dp, bot=bot)
+
+    print(f"✅ Бот запущен на порту {PORT}")
+    web.run_app(app, host="0.0.0.0", port=PORT)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<title>Alaska Bots Market — Боты на заказ</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#06080f;--bg2:#0b0f24;
+--accent:#6366f1;--accent2:#8b5cf6;--cyan:#06b6d4;
+--green:#10b981;--yellow:#f59e0b;--red:#ef4444;
+--txt:#e2e8f0;--dim:#8892a8;
+--glass:rgba(255,255,255,.04);--glass2:rgba(255,255,255,.07);
+--bdr:rgba(255,255,255,.08);--bdr2:rgba(255,255,255,.14);
+--r:16px;--rs:10px;
+}
+html{scroll-behavior:smooth}
+body{
+font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+color:var(--txt);background:var(--bg);
+background-image:
+radial-gradient(ellipse 1200px 600px at 5% 0%,rgba(99,102,241,.18),transparent),
+radial-gradient(ellipse 800px 500px at 95% 5%,rgba(6,182,212,.12),transparent),
+radial-gradient(ellipse 600px 400px at 50% 100%,rgba(139,92,246,.14),transparent);
+min-height:100vh;padding-bottom:80px;overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;font-size:inherit}
+input,textarea,select{font-family:inherit;color:inherit;font-size:14px}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:6px}
+.wrap{max-width:1200px;margin:0 auto;padding:0 16px}
+
+.hdr{position:sticky;top:0;z-index:90;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);background:rgba(6,8,15,.75);border-bottom:1px solid var(--bdr)}
+.hdr-in{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;max-width:1200px;margin:0 auto;gap:12px}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:17px;flex-shrink:0}
+.logo-m{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--cyan));display:grid;place-items:center;font-size:18px;box-shadow:0 4px 20px rgba(99,102,241,.5)}
+.nav{display:flex;gap:2px}
+.nav a{padding:8px 12px;border-radius:var(--rs);font-size:13px;font-weight:500;color:var(--dim);transition:.2s}
+.nav a:hover,.nav a.on{color:#fff;background:var(--glass2)}
+.hdr-acts{display:flex;gap:6px}
+.ib{width:38px;height:38px;border-radius:var(--rs);background:var(--glass);border:1px solid var(--bdr);display:grid;place-items:center;position:relative;transition:.2s;font-size:16px}
+.ib:hover{background:var(--glass2);border-color:var(--bdr2)}
+.badge{position:absolute;top:-4px;right:-4px;background:var(--accent);color:#fff;font-size:10px;font-weight:700;min-width:17px;height:17px;border-radius:9px;display:none;place-items:center;padding:0 4px}
+.badge.show{display:grid}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border-radius:var(--rs);font-weight:600;font-size:13px;transition:.2s;white-space:nowrap}
+.btn-p{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 4px 16px rgba(99,102,241,.4)}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(99,102,241,.6)}
+.btn-g{background:var(--glass);border:1px solid var(--bdr);color:var(--txt)}
+.btn-g:hover{background:var(--glass2);border-color:var(--bdr2)}
+.btn-s{padding:7px 12px;font-size:12px;border-radius:8px}
+.btn-lg{padding:14px 24px;font-size:15px;border-radius:14px}
+.btn-full{width:100%}
+.btn-red{background:rgba(239,68,68,.15);color:#fca5a5;border:1px solid rgba(239,68,68,.25)}
+.btn-green{background:rgba(16,185,129,.15);color:#6ee7b7;border:1px solid rgba(16,185,129,.25)}
+.btn-yellow{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.25)}
+
+/* Promo strip */
+.promo-strip{background:linear-gradient(90deg,rgba(239,68,68,.15),rgba(245,158,11,.15),rgba(239,68,68,.15));border-bottom:1px solid rgba(239,68,68,.2);padding:8px 16px;text-align:center;font-size:12px;font-weight:600;color:#fbbf24}
+.promo-strip b{color:#fff}
+
+.hero{padding:48px 0 32px}
+.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:36px;align-items:center}
+.hero h1{font-size:clamp(28px,4.5vw,52px);line-height:1.08;font-weight:800;letter-spacing:-.5px;margin-bottom:16px}
+.grad{background:linear-gradient(90deg,#a5b4fc,#22d3ee,#c4b5fd);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--dim);font-size:15px;line-height:1.6;margin-bottom:24px;max-width:520px}
+.hero-btns{display:flex;gap:10px;flex-wrap:wrap}
+.stats-row{display:flex;gap:24px;margin-top:32px;flex-wrap:wrap}
+.stat-n{font-size:22px;font-weight:800;color:#fff}
+.stat-l{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.8px;margin-top:2px}
+.hero-vis{position:relative;height:360px;border-radius:20px;overflow:hidden;background:linear-gradient(135deg,rgba(99,102,241,.1),rgba(6,182,212,.08));border:1px solid var(--bdr)}
+.hero-vis::before{content:'';position:absolute;inset:0;background:radial-gradient(300px 200px at 30% 30%,rgba(99,102,241,.3),transparent),radial-gradient(300px 200px at 70% 70%,rgba(6,182,212,.2),transparent)}
+.fc{position:absolute;background:rgba(12,16,40,.8);backdrop-filter:blur(16px);border:1px solid var(--bdr2);border-radius:14px;padding:12px 14px;box-shadow:0 12px 40px rgba(0,0,0,.4);animation:fl 5s ease-in-out infinite}
+.fc-r{display:flex;align-items:center;gap:8px}
+.fc-i{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;font-size:16px}
+.fc-t{font-size:12px;font-weight:600}
+.fc-s{font-size:10px;color:var(--dim);margin-top:1px}
+.fc1{top:24px;left:20px}.fc2{top:100px;right:20px;animation-delay:-1.5s}.fc3{bottom:60px;left:40px;animation-delay:-3s}.fc4{bottom:30px;right:40px;animation-delay:-.8s}
+@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+.feats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:32px 0}
+.feat{background:var(--glass);border:1px solid var(--bdr);border-radius:var(--r);padding:18px;transition:.25s}
+.feat:hover{border-color:var(--bdr2);transform:translateY(-2px)}
+.feat-i{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-size:20px;margin-bottom:12px;background:linear-gradient(135deg,rgba(99,102,241,.2),rgba(6,182,212,.12));border:1px solid var(--bdr2)}
+.feat h3{font-size:14px;font-weight:700;margin-bottom:4px}
+.feat p{font-size:12px;color:var(--dim);line-height:1.5}
+
+.sec{padding:32px 0}
+.sec-h{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap}
+.sec-h h2{font-size:24px;font-weight:700}
+.sec-h p{color:var(--dim);font-size:13px;margin-top:4px}
+
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.chip{padding:7px 13px;border-radius:99px;font-size:12px;font-weight:500;background:var(--glass);border:1px solid var(--bdr);color:var(--dim);transition:.2s;cursor:pointer}
+.chip:hover{color:var(--txt);border-color:var(--bdr2)}
+.chip.on{background:linear-gradient(135deg,rgba(99,102,241,.2),rgba(139,92,246,.15));border-color:rgba(99,102,241,.45);color:#fff}
+
+.g{display:grid;gap:16px}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+
+.card{background:var(--glass);backdrop-filter:blur(12px);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;transition:.25s;cursor:pointer;position:relative;overflow:hidden}
+.card::after{content:'';position:absolute;inset:0;border-radius:var(--r);background:linear-gradient(135deg,rgba(99,102,241,.06),transparent 50%);opacity:0;transition:.25s;pointer-events:none}
+.card:hover{transform:translateY(-3px);border-color:var(--bdr2);box-shadow:0 16px 48px rgba(99,102,241,.15)}
+.card:hover::after{opacity:1}
+.card-top{display:flex;gap:12px;margin-bottom:10px}
+.card-ico{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-size:22px;flex-shrink:0;background:linear-gradient(135deg,rgba(99,102,241,.2),rgba(6,182,212,.15));border:1px solid var(--bdr2)}
+.card-n{font-size:15px;font-weight:700}
+.card-c{font-size:11px;color:var(--dim);margin-top:2px}
+.card-d{font-size:12px;color:var(--dim);line-height:1.5;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px}
+.tag{font-size:10px;padding:3px 7px;border-radius:6px;background:rgba(99,102,241,.1);color:#a5b4fc;border:1px solid rgba(99,102,241,.18)}
+.card-f{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--bdr);gap:8px}
+.price{font-size:18px;font-weight:800;color:#fff}
+.price-from{font-size:10px;color:var(--dim);font-weight:400;margin-right:2px}
+.price-old{font-size:12px;color:var(--dim);text-decoration:line-through;margin-right:6px;font-weight:400}
+.rating{font-size:12px;color:#fbbf24}
+.rating .cnt{color:var(--dim)}
+
+/* Sale badge */
+.sale-badge{position:absolute;top:10px;right:10px;background:linear-gradient(135deg,#ef4444,#f59e0b);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;z-index:2;text-transform:uppercase;letter-spacing:.5px}
+
+.modal-bg{position:fixed;inset:0;background:rgba(4,6,12,.8);backdrop-filter:blur(6px);z-index:200;display:none;align-items:center;justify-content:center;padding:16px}
+.modal-bg.open{display:flex}
+.modal{background:linear-gradient(180deg,rgba(16,20,48,.97),rgba(8,12,30,.97));border:1px solid var(--bdr2);border-radius:20px;max-width:680px;width:100%;max-height:88vh;overflow-y:auto;padding:24px;position:relative;animation:mu .25s ease}
+@keyframes mu{from{transform:translateY(24px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-x{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:8px;background:var(--glass);display:grid;place-items:center;font-size:16px;z-index:2}
+.modal-x:hover{background:var(--glass2)}
+
+.bld{display:grid;grid-template-columns:300px 1fr 300px;gap:16px;min-height:650px}
+.bld-p{background:var(--glass);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;backdrop-filter:blur(12px);overflow-y:auto;max-height:78vh}
+.bld-p h3{font-size:12px;text-transform:uppercase;letter-spacing:.8px;color:#a5b4fc;margin-bottom:14px;font-weight:700}
+.bld-cat{margin-bottom:18px}
+.bld-cat-title{font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--bdr)}
+.blk{padding:12px;background:var(--glass2);border:1px solid var(--bdr);border-radius:var(--rs);margin-bottom:8px;display:flex;align-items:center;gap:10px;font-size:12px;transition:.2s;cursor:pointer;user-select:none}
+.blk:hover{border-color:var(--accent);background:rgba(99,102,241,.1);transform:translateX(2px)}
+.blk .bi{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;font-size:18px;background:linear-gradient(135deg,rgba(99,102,241,.25),rgba(6,182,212,.15));flex-shrink:0}
+.blk-info{flex:1;min-width:0}
+.blk-n{font-weight:600;font-size:13px;margin-bottom:2px}
+.blk-desc{font-size:10px;color:var(--dim);line-height:1.3}
+.blk-p{font-size:12px;font-weight:700;color:var(--accent);flex-shrink:0}
+.canvas{background:var(--glass);border:2px dashed var(--bdr);border-radius:var(--r);padding:16px;min-height:550px;transition:.2s}
+.canvas-empty{text-align:center;padding:100px 20px;color:var(--dim);font-size:14px}
+.canvas-empty .ce{font-size:56px;margin-bottom:14px;opacity:.4}
+.pb{background:linear-gradient(135deg,rgba(99,102,241,.12),rgba(139,92,246,.08));border:1px solid rgba(99,102,241,.25);border-radius:var(--rs);padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;animation:si .25s ease;cursor:pointer;transition:.2s}
+.pb:hover{border-color:var(--accent);background:linear-gradient(135deg,rgba(99,102,241,.18),rgba(139,92,246,.12));transform:translateX(3px)}
+.pb.sel{border-color:var(--cyan);background:linear-gradient(135deg,rgba(6,182,212,.15),rgba(99,102,241,.1));box-shadow:0 0 0 2px rgba(6,182,212,.3)}
+@keyframes si{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
+.pb .bi{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-size:20px;background:linear-gradient(135deg,rgba(99,102,241,.25),rgba(6,182,212,.15));flex-shrink:0}
+.pb-info{flex:1;min-width:0}
+.pb-n{font-weight:600;font-size:14px;margin-bottom:3px}
+.pb-p{font-size:12px;color:var(--dim)}
+.pb-config{font-size:10px;color:var(--cyan);margin-top:2px;font-style:italic}
+.pb-x{width:32px;height:32px;border-radius:8px;background:rgba(239,68,68,.15);color:#fca5a5;display:grid;place-items:center;font-size:16px;flex-shrink:0;transition:.2s}
+.pb-x:hover{background:rgba(239,68,68,.3);transform:scale(1.1)}
+.pbox{background:linear-gradient(135deg,rgba(99,102,241,.15),rgba(139,92,246,.1));border:1px solid rgba(99,102,241,.3);border-radius:14px;padding:18px;margin-top:16px}
+.pbox .pl{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.8px}
+.pbox .pv{font-size:28px;font-weight:800;margin-top:4px;color:#fff}
+.pbd{margin-top:12px;font-size:11px;color:var(--dim)}
+.pbd div{display:flex;justify-content:space-between;padding:3px 0}
+.pbd .tot{border-top:1px solid var(--bdr);margin-top:8px;padding-top:8px;font-weight:700;color:var(--txt);font-size:13px}
+.bld-templates{margin-top:18px;padding-top:18px;border-top:1px solid var(--bdr)}
+.bld-tpl{padding:12px;background:var(--glass2);border:1px solid var(--bdr);border-radius:var(--rs);margin-bottom:8px;cursor:pointer;transition:.2s;font-size:12px}
+.bld-tpl:hover{border-color:var(--accent);background:rgba(99,102,241,.1)}
+.bld-tpl-n{font-weight:600;margin-bottom:3px;font-size:13px}
+.bld-tpl-d{font-size:10px;color:var(--dim)}
+
+.config-panel{background:var(--glass);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;margin-top:16px}
+.config-panel h4{font-size:13px;font-weight:700;margin-bottom:12px;color:var(--cyan)}
+.cfg-field{margin-bottom:12px}
+.cfg-field label{display:block;font-size:11px;font-weight:600;margin-bottom:4px;color:var(--dim)}
+.cfg-field input,.cfg-field select,.cfg-field textarea{width:100%;padding:8px 10px;background:var(--glass2);border:1px solid var(--bdr);border-radius:8px;font-size:12px;color:var(--txt)}
+.cfg-field input:focus,.cfg-field select:focus,.cfg-field textarea:focus{outline:none;border-color:var(--accent)}
+.cfg-field textarea{min-height:60px;resize:vertical}
+.cfg-check{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px;cursor:pointer}
+.cfg-check input{width:auto;cursor:pointer}
+
+.req-card{background:var(--glass);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;margin-bottom:12px;transition:.2s}
+.req-card:hover{border-color:var(--bdr2)}
+.req-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.req-id{font-weight:700;font-size:15px}
+.req-date{font-size:11px;color:var(--dim);margin-top:2px}
+.req-status{font-size:11px;padding:4px 10px;border-radius:99px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.st-new{background:rgba(99,102,241,.15);color:#a5b4fc;border:1px solid rgba(99,102,241,.3)}
+.st-progress{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3)}
+.st-ready{background:rgba(16,185,129,.15);color:#6ee7b7;border:1px solid rgba(16,185,129,.3)}
+.st-done{background:rgba(148,163,184,.15);color:#cbd5e1;border:1px solid rgba(148,163,184,.3)}
+.req-block{padding:10px;background:var(--glass2);border-radius:8px;margin-bottom:8px;font-size:12px}
+.req-block-t{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);margin-bottom:4px;font-weight:700}
+.req-block-v{color:var(--txt);line-height:1.5;white-space:pre-wrap}
+.req-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:12px;font-weight:600;margin-bottom:5px;color:var(--dim)}
+.fi{width:100%;padding:10px 12px;background:var(--glass);border:1px solid var(--bdr);border-radius:var(--rs);font-size:13px;transition:.2s}
+.fi:focus{outline:none;border-color:var(--accent);background:var(--glass2)}
+textarea.fi{min-height:80px;resize:vertical}
+
+.chat{display:flex;flex-direction:column;height:440px;background:var(--glass);border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden}
+.chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px}
+.msg{max-width:78%;padding:9px 13px;border-radius:12px;font-size:13px;line-height:1.4}
+.msg-in{background:var(--glass2);align-self:flex-start;border-bottom-left-radius:3px}
+.msg-out{background:linear-gradient(135deg,var(--accent),var(--accent2));align-self:flex-end;border-bottom-right-radius:3px}
+.msg-tm{font-size:9px;opacity:.5;margin-top:3px}
+.chat-in{display:flex;gap:6px;padding:10px;border-top:1px solid var(--bdr)}
+.chat-in input{flex:1}
+
+.tkt{padding:12px;background:var(--glass);border:1px solid var(--bdr);border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(16,185,129,.92);color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:999;box-shadow:0 8px 24px rgba(16,185,129,.4);animation:ti .25s ease;pointer-events:none}
+@keyframes ti{from{opacity:0;transform:translate(-50%,16px)}to{opacity:1;transform:translate(-50%,0)}}
+
+.view{display:none}.view.on{display:block;animation:fi .25s ease}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+
+.sbox{position:relative;margin-bottom:16px}
+.sbox input{width:100%;padding:12px 12px 12px 40px;background:var(--glass);border:1px solid var(--bdr);border-radius:12px;font-size:13px}
+.sbox input:focus{outline:none;border-color:var(--accent)}
+.sbox::before{content:'🔍';position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:13px;opacity:.4}
+
+.empty{text-align:center;padding:48px 16px;color:var(--dim)}
+.empty .ei{font-size:48px;margin-bottom:10px;opacity:.35}
+.empty h3{color:var(--txt);font-size:16px;margin-bottom:4px}
+
+.pban{background:linear-gradient(135deg,rgba(99,102,241,.15),rgba(139,92,246,.1),rgba(6,182,212,.08));border:1px solid rgba(99,102,241,.25);border-radius:18px;padding:24px;margin:32px 0;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;position:relative;overflow:hidden}
+.pban::before{content:'';position:absolute;top:-40%;right:-15%;width:300px;height:300px;background:radial-gradient(circle,rgba(139,92,246,.2),transparent 70%);pointer-events:none}
+.pban h3{font-size:20px;font-weight:700;margin-bottom:4px}
+.pban p{color:var(--dim);font-size:13px}
+
+.bnav{position:fixed;bottom:0;left:0;right:0;z-index:80;background:rgba(6,8,15,.9);backdrop-filter:blur(20px);border-top:1px solid var(--bdr);display:none}
+.bnav-in{display:flex;justify-content:space-around;padding:6px 0 max(6px,env(safe-area-inset-bottom))}
+.bni{display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 8px;font-size:9px;color:var(--dim);transition:.2s}
+.bni.on{color:var(--accent)}
+.bni span:first-child{font-size:18px}
+
+.gstats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.gs{background:var(--glass);padding:6px;border-radius:6px;text-align:center}
+.gs .gl{font-size:10px;color:var(--dim)}.gs .gv{font-weight:700;font-size:12px;margin-top:1px}
+
+.checkout-box{background:var(--glass);border:1px solid var(--bdr);border-radius:var(--r);padding:20px;margin-top:16px}
+.checkout-summary{padding:14px;background:var(--glass2);border-radius:10px;margin-bottom:16px}
+.checkout-row{display:flex;justify-content:space-between;padding:4px 0;font-size:13px}
+.checkout-total{border-top:1px solid var(--bdr);margin-top:8px;padding-top:8px;font-weight:800;font-size:16px}
+.info-box{background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.25);border-radius:10px;padding:12px;font-size:12px;color:var(--dim);line-height:1.5;margin-bottom:16px}
+.info-box b{color:var(--cyan)}
+
+.atabs{display:flex;gap:4px;margin-bottom:16px;flex-wrap:wrap}
+.atab{padding:8px 14px;border-radius:8px;background:var(--glass);border:1px solid var(--bdr);font-size:12px;font-weight:500;color:var(--dim);transition:.2s}
+.atab:hover{color:var(--txt)}
+.atab.on{background:linear-gradient(135deg,rgba(99,102,241,.18),rgba(139,92,246,.12));border-color:rgba(99,102,241,.35);color:#fff}
+.sc{background:var(--glass);border:1px solid var(--bdr);border-radius:var(--r);padding:16px}
+.sc .sv{font-size:24px;font-weight:800;margin:4px 0}
+.sc .sl{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.8px}
+.sc .sd{font-size:11px;margin-top:4px}
+.sd-u{color:#6ee7b7}.sd-d{color:#fca5a5}
+
+/* Promo cards */
+.promo-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:24px 0}
+.promo-card{background:linear-gradient(135deg,rgba(239,68,68,.1),rgba(245,158,11,.08));border:1px solid rgba(239,68,68,.25);border-radius:var(--r);padding:18px;text-align:center;position:relative;overflow:hidden}
+.promo-card::before{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;background:radial-gradient(circle,rgba(239,68,68,.2),transparent 70%);pointer-events:none}
+.promo-card .pc-tag{display:inline-block;background:linear-gradient(135deg,#ef4444,#f59e0b);color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:99px;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px}
+.promo-card h4{font-size:15px;font-weight:700;margin-bottom:6px}
+.promo-card p{font-size:12px;color:var(--dim);line-height:1.4;margin-bottom:10px}
+.promo-card .pc-price{font-size:22px;font-weight:800;color:#fff;margin-bottom:4px}
+.promo-card .pc-old{font-size:12px;color:var(--dim);text-decoration:line-through}
+
+@media(max-width:900px){
+.g3,.g4{grid-template-columns:repeat(2,1fr)}
+.hero-grid{grid-template-columns:1fr}
+.hero-vis{height:260px}
+.feats{grid-template-columns:repeat(2,1fr)}
+.bld{grid-template-columns:1fr}
+.bld-p{max-height:none}
+.promo-cards{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+.g3,.g4,.g2{grid-template-columns:1fr}
+.nav{display:none}
+.bnav{display:block}
+}
+</style>
+</head>
+<body>
+
+<div class="promo-strip">🔥 <b>СКИДКА 40%</b> на первый заказ по промокоду <b>ALASKA40</b> • Осталось мест: <b id="slotsLeft">17</b> из 50</div>
+
+<header class="hdr">
+<div class="hdr-in">
+<a class="logo" href="#" data-nav="home"><div class="logo-m">❄️</div><div>Alaska <span class="grad">Bots</span></div></a>
+<nav class="nav" id="mainNav"></nav>
+<div class="hdr-acts">
+<button class="ib" data-nav="myorders" title="Мои заказы">📦<span class="badge" id="bOrders">0</span></button>
+<button class="ib" data-nav="admin" title="Админ">⚙️<span class="badge" id="bAdmin">0</span></button>
+</div>
+</div>
+</header>
+
+<main class="wrap" id="app"></main>
+
+<div class="modal-bg" id="mOrder">
+<div class="modal" id="mOrderBody"></div>
+</div>
+
+<div class="modal-bg" id="mTicket">
+<div class="modal">
+<button class="modal-x" data-close="mTicket">✕</button>
+<h2 style="margin-bottom:4px">🎫 Новый тикет</h2>
+<p style="color:var(--dim);font-size:13px;margin-bottom:16px">Опишите проблему — ответим в течение 24 часов</p>
+<div class="fg"><label>Тема</label><input class="fi" id="tSubj" placeholder="Например: Вопрос по оплате"/></div>
+<div class="fg"><label>Описание</label><textarea class="fi" id="tText" placeholder="Подробно опишите..."></textarea></div>
+<button class="btn btn-p btn-full" id="btnSubmitTicket">Отправить тикет</button>
+</div>
+</div>
+
+<nav class="bnav"><div class="bnav-in" id="bnavIn"></div></nav>
+
+<script>
+const tg = window.Telegram?.WebApp;
+if(tg){tg.ready();tg.expand();}
+
+const CATS=[
+{id:'all',n:'Все',i:'🌐'},{id:'business',n:'Бизнес',i:'💼'},{id:'shop',n:'Магазины',i:'🛒'},
+{id:'ai',n:'AI-боты',i:'🤖'},{id:'game',n:'Игровые',i:'🎮'},{id:'chat',n:'Чат-боты',i:'💬'},
+{id:'edu',n:'Образование',i:'📚'},{id:'channel',n:'Каналы',i:'📢'},{id:'crm',n:'CRM',i:'📋'},
+{id:'fun',n:'Развлечения',i:'🎉'},{id:'community',n:'Сообщества',i:'👥'}
+];
+const GCATS=[{id:'all',n:'Все'},{id:'clicker',n:'Clicker'},{id:'rpg',n:'RPG'},{id:'economy',n:'Экономика'},{id:'lootbox',n:'Кейсы'},{id:'pvp',n:'PvP'},{id:'random',n:'Рандом'}];
+const MACATS=[{id:'all',n:'Все'},{id:'shop',n:'Магазины'},{id:'game',n:'Игры'},{id:'service',n:'Сервисы'},{id:'social',n:'Соцсети'},{id:'finance',n:'Финансы'}];
+
+// ЦЕНЫ СНИЖЕНЫ В 3-4 РАЗА — доступные для старта
+const BOTS=[
+{n:'Магазин в Telegram',c:'shop',p:1490,old:2490,d:'Интернет-магазин с каталогом, корзиной, оплатой и админкой.',t:['Каталог','Оплата','Доставка'],i:'🛍️',sale:true},
+{n:'AI-бот для продаж',c:'ai',p:2490,old:4990,d:'Бот на базе GPT, отвечает клиентам 24/7 и закрывает сделки.',t:['GPT-4','CRM','Аналитика'],i:'🤖',sale:true},
+{n:'Крипто-приём платежей',c:'shop',p:1990,old:3490,d:'Приём BTC, ETH, USDT, TON с автоматическим подтверждением.',t:['Crypto','Auto-confirm'],i:'💎',sale:true},
+{n:'Автопостинг в каналы',c:'channel',p:790,old:1290,d:'Постинг из RSS, Google Sheets, Notion по расписанию.',t:['RSS','Schedule'],i:'📢',sale:true},
+{n:'CRM в Telegram',c:'crm',p:2990,old:4990,d:'Воронки, сделки, задачи, интеграция с Google Sheets.',t:['Pipeline','Tasks'],i:'📋',sale:true},
+{n:'Платформа квизов',c:'edu',p:990,old:1790,d:'Квизы и тесты со статистикой, лидербордами и результатами.',t:['Quiz','Leaderboard'],i:'🎓',sale:true},
+{n:'Тикет-система поддержки',c:'chat',p:1490,old:2490,d:'Система обращений с очередями, статусами и автоответами.',t:['Tickets','SLA'],i:'🎫',sale:true},
+{n:'Реферальная программа',c:'business',p:1290,old:2290,d:'Многоуровневая рефералка с выплатами и статистикой.',t:['Multi-level','Payouts'],i:'🔗',sale:true},
+{n:'Бот записи на услуги',c:'business',p:1790,old:2990,d:'Бронирование для салонов, врачей, консультаций.',t:['Calendar','Pay'],i:'📅',sale:true},
+{n:'Доставка еды',c:'shop',p:2990,old:4990,d:'Меню, корзина, адреса, курьеры, трекинг заказа.',t:['Menu','Courier'],i:'🍕',sale:true},
+{n:'Онлайн-курсы',c:'edu',p:3490,old:5990,d:'Уроки, домашки, проверки, сертификаты, прогресс.',t:['Lessons','Homework'],i:'🎓',sale:true},
+{n:'Управление сообществом',c:'community',p:1490,old:2490,d:'Роли, уровни, ивенты, модерация, рейтинги.',t:['Roles','Levels'],i:'👥',sale:true},
+{n:'Генератор мемов',c:'fun',p:590,old:990,d:'Шаблоны, текст, публикация в канал, вирусный механизм.',t:['Templates','Share'],i:'😂',sale:true},
+{n:'Гороскопы и таро',c:'fun',p:490,old:790,d:'Ежедневные гороскопы, совместимость, нумерология.',t:['Daily','Tarot'],i:'🔮',sale:true},
+{n:'Фитнес-тренер',c:'edu',p:1690,old:2790,d:'Персональные тренировки, питание, прогресс, челленджи.',t:['Workouts','Diet'],i:'💪',sale:true},
+{n:'AI-репетитор языков',c:'ai',p:2690,old:4490,d:'Разговорная практика, грамматика, 10+ языков.',t:['AI','Voice'],i:'🗣️',sale:true},
+{n:'Генератор счетов PDF',c:'business',p:890,old:1490,d:'Счета и акты в PDF, клиенты, шаблоны, экспорт.',t:['PDF','Export'],i:'🧾',sale:true},
+{n:'Продажа билетов',c:'business',p:1990,old:3290,d:'QR-коды, сканирование на входе, аналитика продаж.',t:['QR','Analytics'],i:'🎟️',sale:true},
+{n:'Сборщик новостей',c:'channel',p:990,old:1690,d:'Парсинг источников, фильтрация, автопостинг.',t:['RSS','Filter'],i:'📰',sale:true},
+{n:'Опросы и анкетирование',c:'business',p:890,old:1490,d:'Логика, ветвления, экспорт в CSV/Excel.',t:['Logic','Export'],i:'📝',sale:true},
+{n:'Внутренний кошелёк',c:'shop',p:1490,old:2490,d:'Пополнение, P2P-переводы, история операций.',t:['Wallet','P2P'],i:'💰',sale:true},
+{n:'Розыгрыши и конкурсы',c:'community',p:790,old:1290,d:'Условия, выбор победителей, анти-накрутка.',t:['Contests','Anti-cheat'],i:'🎰',sale:true},
+{n:'AI-генератор картинок',c:'ai',p:3490,old:5990,d:'Генерация через SD / DALL-E, галерея, промпты.',t:['SD','DALL-E'],i:'🎨',sale:true},
+{n:'Музыкальный бот',c:'fun',p:890,old:1490,d:'Поиск, плейлисты, очереди, тексты песен.',t:['Search','Playlists'],i:'🎵',sale:true},
+{n:'Таск-менеджер',c:'crm',p:1290,old:2190,d:'Проекты, исполнители, дедлайны, уведомления.',t:['Projects','Deadlines'],i:'✅',sale:true},
+{n:'Погода с алертами',c:'fun',p:390,old:690,d:'Прогноз, радары, уведомления об изменениях.',t:['Forecast','Alerts'],i:'🌤️',sale:true},
+{n:'Переводчик AI',c:'ai',p:790,old:1290,d:'100+ языков, распознавание голоса и изображений.',t:['100+ langs','Voice'],i:'🌍',sale:true},
+{n:'Бот знакомств',c:'community',p:2290,old:3790,d:'Анкеты, лайки, матчи, чат, верификация.',t:['Match','Verify'],i:'❤️',sale:true},
+{n:'Недвижимость',c:'business',p:2990,old:4990,d:'Каталог объектов, фильтры, заявки, риелторы.',t:['Catalog','Agents'],i:'🏠',sale:true},
+{n:'HR-бот для найма',c:'business',p:1990,old:3290,d:'Вакансии, отклики, скрининг, собеседования.',t:['Jobs','Screening'],i:'👔',sale:true},
+{n:'Сбор донатов',c:'community',p:890,old:1490,d:'Цели, прогресс-бар, благодарности, топ донатеров.',t:['Goals','Top'],i:'💝',sale:true},
+{n:'Подкаст-платформа',c:'channel',p:990,old:1690,d:'Аудио, RSS, эпизоды, статистика прослушиваний.',t:['Audio','RSS'],i:'🎙️',sale:true},
+];
+
+const GAMES=[
+{n:'Clicker Empire',c:'clicker',p:1290,old:1990,d:'Кликер с прокачкой, достижениями, ивентами.',t:['Upgrades','Achievements'],i:'👆',lv:50,cr:'Gold',rw:'x2 click',sale:true},
+{n:'RPG Legends',c:'rpg',p:3990,old:6990,d:'Полноценная RPG: классы, квесты, PvP, гильдии.',t:['Classes','PvP','Guilds'],i:'⚔️',lv:100,cr:'Coins',rw:'Epic loot',sale:true},
+{n:'LootBox Casino',c:'lootbox',p:1990,old:3290,d:'Кейсы с анимацией, редкости, обмен, маркет.',t:['Cases','Market'],i:'🎁',lv:30,cr:'Gems',rw:'Rare items',sale:true},
+{n:'Economy Tycoon',c:'economy',p:2490,old:3990,d:'Экономическая симуляция: бизнесы, инвестиции.',t:['Business','Market'],i:'💼',lv:75,cr:'USD',rw:'Passive income',sale:true},
+{n:'PvP Arena',c:'pvp',p:2290,old:3790,d:'PvP-арена с рейтингом, турнирами и наградами.',t:['Ranked','Tournaments'],i:'🏆',lv:60,cr:'Tokens',rw:'Champion',sale:true},
+{n:'Dice Roller',c:'random',p:690,old:1190,d:'Игры на кубиках, рулетка, ставки.',t:['Dice','Roulette'],i:'🎲',lv:20,cr:'Chips',rw:'Jackpot',sale:true},
+{n:'Farm Story',c:'economy',p:1690,old:2790,d:'Ферма: посадка, сбор, животные, рынок.',t:['Crops','Animals'],i:'🌾',lv:80,cr:'Seeds',rw:'Rare crops',sale:true},
+{n:'Battle Royale',c:'pvp',p:3490,old:5990,d:'Королевская битва: 100 игроков.',t:['100 players','Loot'],i:'🎯',lv:100,cr:'BP',rw:'Skins',sale:true},
+{n:'Slot Machine',c:'random',p:990,old:1690,d:'Слот-машина с джекпотом и бонусами.',t:['Slots','Jackpot'],i:'🎰',lv:40,cr:'Credits',rw:'Free spins',sale:true},
+];
+
+const MAPPS=[
+{n:'TG Shop Mini App',c:'shop',p:2290,old:3790,d:'Магазин как Mini App: каталог, корзина, Stars.',t:['Catalog','Stars'],i:'🛒',sale:true},
+{n:'Crypto Wallet',c:'finance',p:2990,old:4990,d:'Крипто-кошелёк: TON, USDT, BTC. Переводы.',t:['TON','Exchange'],i:'💎',sale:true},
+{n:'Quiz Arena',c:'game',p:1190,old:1990,d:'Викторина в реальном времени с лидербордом.',t:['Realtime','Prizes'],i:'🧠',sale:true},
+{n:'Dating Mini App',c:'social',p:3490,old:5990,d:'Знакомства: свайпы, матчи, чат.',t:['Swipe','Match'],i:'❤️',sale:true},
+{n:'Booking Service',c:'service',p:1990,old:3290,d:'Запись на услуги: календарь, оплата.',t:['Calendar','Pay'],i:'📅',sale:true},
+{n:'NFT Gallery',c:'finance',p:3990,old:6490,d:'Галерея NFT с подключением TON Wallet.',t:['NFT','TON'],i:'🖼️',sale:true},
+{n:'Food Order',c:'shop',p:2490,old:3990,d:'Заказ еды с меню и трекингом курьера.',t:['Menu','Courier'],i:'🍔',sale:true},
+{n:'Fitness Tracker',c:'service',p:1490,old:2490,d:'Трекер тренировок и питания с графиками.',t:['Workouts','Charts'],i:'💪',sale:true},
+{n:'Social Feed',c:'social',p:1690,old:2790,d:'Лента постов, лайки, комментарии.',t:['Feed','Likes'],i:'📱',sale:true},
+];
+
+// Блоки конструктора — тоже дешевле
+const BLOCKS=[
+{id:'menu',n:'Стартовое меню',i:'📋',p:149,cat:'base',d:'Главное меню с кнопками',cfg:[
+  {k:'buttons',t:'number',l:'Количество кнопок',def:4,min:1,max:10,pp:25},
+  {k:'icons',t:'bool',l:'Иконки на кнопках',def:true,pp:49}
+]},
+{id:'buttons',n:'Inline-кнопки',i:'🔘',p:89,cat:'base',d:'Кнопки под сообщениями',cfg:[
+  {k:'max_per_msg',t:'number',l:'Макс кнопок в сообщении',def:5,min:1,max:12,pp:15},
+  {k:'urls',t:'bool',l:'URL-кнопки',def:true,pp:39}
+]},
+{id:'fsm',n:'Анкета (FSM)',i:'📝',p:249,cat:'base',d:'Многошаговые формы',cfg:[
+  {k:'steps',t:'number',l:'Количество шагов',def:5,min:1,max:20,pp:39},
+  {k:'validation',t:'bool',l:'Валидация данных',def:true,pp:79}
+]},
+{id:'db',n:'База данных',i:'💾',p:299,cat:'base',d:'Хранение данных',cfg:[
+  {k:'tables',t:'number',l:'Количество таблиц',def:3,min:1,max:10,pp:59},
+  {k:'backup',t:'bool',l:'Автобэкап',def:false,pp:119}
+]},
+{id:'notify',n:'Уведомления',i:'🔔',p:179,cat:'base',d:'Рассылки',cfg:[
+  {k:'schedule',t:'bool',l:'Отложенные',def:false,pp:89},
+  {k:'segments',t:'number',l:'Сегменты аудитории',def:2,min:1,max:10,pp:49}
+]},
+{id:'subs',n:'Подписки',i:'📩',p:329,cat:'base',d:'Подписка на каналы',cfg:[
+  {k:'channels',t:'number',l:'Количество каналов',def:3,min:1,max:20,pp:39},
+  {k:'auto_check',t:'bool',l:'Автопроверка',def:true,pp:69}
+]},
+{id:'stars',n:'Telegram Stars',i:'⭐',p:449,cat:'pay',d:'Платежи через Stars',cfg:[
+  {k:'products',t:'number',l:'Количество товаров',def:5,min:1,max:50,pp:25},
+  {k:'refunds',t:'bool',l:'Возвраты',def:false,pp:99}
+]},
+{id:'crypto',n:'Crypto Payments',i:'💎',p:599,cat:'pay',d:'Оплата криптой',cfg:[
+  {k:'coins',t:'number',l:'Количество монет',def:3,min:1,max:10,pp:79},
+  {k:'auto_convert',t:'bool',l:'Автоконвертация',def:false,pp:149}
+]},
+{id:'yookassa',n:'ЮKassa',i:'💳',p:549,cat:'pay',d:'Приём карт',cfg:[
+  {k:'saved_cards',t:'bool',l:'Сохранение карт',def:false,pp:119},
+  {k:'installments',t:'bool',l:'Рассрочка',def:false,pp:129}
+]},
+{id:'ref',n:'Рефералка',i:'🔗',p:399,cat:'adv',d:'Многоуровневая',cfg:[
+  {k:'levels',t:'number',l:'Уровней',def:2,min:1,max:5,pp:89},
+  {k:'auto_payout',t:'bool',l:'Автовыплаты',def:false,pp:109}
+]},
+{id:'promo',n:'Промокоды',i:'🎟️',p:249,cat:'adv',d:'Скидки и коды',cfg:[
+  {k:'max_codes',t:'number',l:'Макс промокодов',def:10,min:1,max:100,pp:9},
+  {k:'expiry',t:'bool',l:'Срок действия',def:true,pp:59}
+]},
+{id:'admin',n:'Админ-панель',i:'⚙️',p:479,cat:'adv',d:'Управление ботом',cfg:[
+  {k:'admins',t:'number',l:'Количество админов',def:2,min:1,max:10,pp:49},
+  {k:'logs',t:'bool',l:'Логи действий',def:true,pp:89}
+]},
+{id:'roles',n:'Роли',i:'👥',p:299,cat:'adv',d:'Права доступа',cfg:[
+  {k:'roles_count',t:'number',l:'Количество ролей',def:3,min:1,max:10,pp:59},
+  {k:'permissions',t:'bool',l:'Гибкие права',def:true,pp:99}
+]},
+{id:'stats',n:'Статистика',i:'📊',p:329,cat:'adv',d:'Аналитика',cfg:[
+  {k:'metrics',t:'number',l:'Метрик',def:5,min:1,max:20,pp:39},
+  {k:'export',t:'bool',l:'Экспорт CSV',def:false,pp:79}
+]},
+{id:'ai',n:'AI / GPT',i:'🤖',p:799,cat:'adv',d:'Интеграция GPT-4',cfg:[
+  {k:'tokens',t:'number',l:'Токенов/мес (тыс)',def:100,min:10,max:1000,pp:3},
+  {k:'memory',t:'bool',l:'Память диалогов',def:true,pp:149}
+]},
+{id:'crm',n:'CRM',i:'📋',p:569,cat:'adv',d:'Интеграция с CRM',cfg:[
+  {k:'fields',t:'number',l:'Доп. полей',def:5,min:0,max:20,pp:39},
+  {k:'sync',t:'bool',l:'Двусторонняя синхр.',def:false,pp:169}
+]},
+];
+
+const TEMPLATES=[
+{id:'shop',n:'🛒 Магазин',d:'Каталог + корзина + оплата',blocks:['menu','buttons','db','stars','yookassa','admin']},
+{id:'support',n:'🎫 Поддержка',d:'Тикеты + FAQ + автоответы',blocks:['menu','buttons','fsm','db','notify','admin']},
+{id:'course',n:'🎓 Курсы',d:'Уроки + тесты + сертификаты',blocks:['menu','buttons','fsm','db','subs','stats','admin']},
+{id:'ai',n:'🤖 AI-ассистент',d:'GPT-бот с памятью',blocks:['menu','buttons','db','ai','admin']},
+];
+
+const FAQ=[
+{q:'Как происходит разработка?',a:'Вы оставляете заявку → я связываюсь для уточнения → делаю бота → передаю готовый результат.'},
+{q:'Сколько времени занимает?',a:'Простые боты — 1-3 дня. Сложные — 1-2 недели. Точные сроки после ТЗ.'},
+{q:'Можно ли вернуть деньги?',a:'Да, если результат не соответствует ТЗ — полный возврат.'},
+{q:'Что входит в стоимость?',a:'Разработка, деплой, документация, 30 дней бесплатной поддержки.'},
+{q:'Как передаётся готовый бот?',a:'Доступ к боту, исходный код, инструкция и видео по настройке.'},
+];
+
+const LS=k=>{try{return JSON.parse(localStorage.getItem('abm_'+k))}catch{return null}};
+const SS=(k,v)=>localStorage.setItem('abm_'+k,JSON.stringify(v));
+
+let S={
+  view:'home',
+  cat:'all', gcat:'all', macat:'all',
+  requests: LS('requests')||[],
+  myorders: LS('myorders')||[],
+  tickets: LS('tickets')||[],
+  builder: LS('builder')||[],
+  builderTemplate: null,
+  search:'',
+  selectedBlock:null,
+  adminTab:'requests',
+};
+function save(){
+  SS('requests',S.requests);
+  SS('myorders',S.myorders);
+  SS('tickets',S.tickets);
+  SS('builder',S.builder);
+}
+
+const $=s=>document.querySelector(s);
+const $$=s=>document.querySelectorAll(s);
+const app=()=>$('#app');
+
+function toast(msg){
+  const d=document.createElement('div');d.className='toast';d.textContent=msg;
+  document.body.appendChild(d);setTimeout(()=>d.remove(),2400);
+}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function catName(id,list){const c=list.find(x=>x.id===id);return c?c.n:id}
+function stars(){return (4+Math.random()).toFixed(1)}
+function revCnt(){return Math.floor(20+Math.random()*300)}
+function formatPrice(p){return p.toLocaleString('ru-RU')+'₽'}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+
+function calcBlockPrice(block){
+  let price=block.basePrice;
+  if(block.config){
+    Object.keys(block.config).forEach(k=>{
+      const cfgDef=block.cfgDef.find(c=>c.k===k);
+      if(cfgDef){
+        if(cfgDef.t==='number') price+=block.config[k]*cfgDef.pp;
+        else if(cfgDef.t==='bool' && block.config[k]) price+=cfgDef.pp;
+      }
+    });
+  }
+  return price;
+}
+
+function badges(){
+  const bo=$('#bOrders');
+  bo.textContent=S.myorders.length;
+  bo.classList.toggle('show',S.myorders.length>0);
+  const ba=$('#bAdmin');
+  const newReqs=S.requests.filter(r=>r.status==='new').length;
+  ba.textContent=newReqs;
+  ba.classList.toggle('show',newReqs>0);
+}
+
+const VIEWS=['home','marketplace','games','miniapps','builder','myorders','support','admin'];
+const NAV_ITEMS=[
+  {id:'marketplace',l:'Каталог'},{id:'games',l:'Игры'},{id:'miniapps',l:'Mini Apps'},
+  {id:'builder',l:'Конструктор'},{id:'support',l:'Поддержка'}
+];
+const BNAV=[
+  {id:'home',i:'🏠',l:'Главная'},{id:'marketplace',i:'🛍️',l:'Каталог'},
+  {id:'builder',i:'🧩',l:'Собрать'},{id:'myorders',i:'📦',l:'Заказы'},{id:'support',i:'💬',l:'Чат'}
+];
+
+function initNav(){
+  $('#mainNav').innerHTML=NAV_ITEMS.map(v=>`<a href="#" data-nav="${v.id}">${v.l}</a>`).join('');
+  $('#bnavIn').innerHTML=BNAV.map(v=>`<button class="bni" data-nav="${v.id}"><span>${v.i}</span><span>${v.l}</span></button>`).join('');
+}
+
+function go(view){
+  if(!VIEWS.includes(view))view='home';
+  S.view=view;
+  S.selectedBlock=null;
+  $$('#mainNav a').forEach(a=>a.classList.toggle('on',a.dataset.nav===view));
+  $$('.bni').forEach(b=>b.classList.toggle('on',b.dataset.nav===view));
+  renderView();
+  window.scrollTo({top:0,behavior:'smooth'});
+  history.replaceState(null,null,'#'+(view==='home'?'':view));
+}
+
+function renderView(){
+  const a=app();
+  switch(S.view){
+    case 'home': a.innerHTML=viewHome();break;
+    case 'marketplace': a.innerHTML=viewMarketplace();break;
+    case 'games': a.innerHTML=viewGames();break;
+    case 'miniapps': a.innerHTML=viewMiniApps();break;
+    case 'builder': a.innerHTML=viewBuilder();break;
+    case 'myorders': a.innerHTML=viewMyOrders();break;
+    case 'support': a.innerHTML=viewSupport();break;
+    case 'admin': a.innerHTML=viewAdmin();break;
+  }
+}
+
+function cardHTML(item,type){
+  const r=stars(),rc=revCnt();
+  const safeN=item.n.replace(/"/g,'&quot;');
+  return `<div class="card" data-product data-type="${type}" data-name="${safeN}">
+    ${item.sale?'<div class="sale-badge">-'+Math.round((1-item.p/item.old)*100)+'%</div>':''}
+    <div class="card-top"><div class="card-ico">${item.i}</div><div><div class="card-n">${item.n}</div><div class="card-c">${catName(item.c,type==='game'?GCATS:type==='miniapp'?MACATS:CATS)}</div></div></div>
+    <div class="card-d">${item.d}</div>
+    <div class="tags">${item.t.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+    <div class="card-f">
+      <div>
+        ${item.old?`<span class="price-old">${formatPrice(item.old)}</span>`:''}
+        <span class="price"><span class="price-from">от</span>${formatPrice(item.p)}</span>
+      </div>
+      <div class="rating">★ ${r} <span class="cnt">(${rc})</span></div>
+    </div>
+  </div>`;
+}
+
+function gameCardHTML(g){
+  const safeN=g.n.replace(/"/g,'&quot;');
+  return `<div class="card" data-product data-type="game" data-name="${safeN}">
+    ${g.sale?'<div class="sale-badge">-'+Math.round((1-g.p/g.old)*100)+'%</div>':''}
+    <div class="card-top"><div class="card-ico">${g.i}</div><div><div class="card-n">${g.n}</div><div class="card-c">${catName(g.c,GCATS)}</div></div></div>
+    <div class="card-d">${g.d}</div>
+    <div class="gstats"><div class="gs"><div class="gl">Уровней</div><div class="gv">${g.lv}</div></div><div class="gs"><div class="gl">Валюта</div><div class="gv">${g.cr}</div></div><div class="gs"><div class="gl">Награда</div><div class="gv">${g.rw}</div></div></div>
+    <div class="tags">${g.t.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+    <div class="card-f">
+      <div>
+        ${g.old?`<span class="price-old">${formatPrice(g.old)}</span>`:''}
+        <span class="price"><span class="price-from">от</span>${formatPrice(g.p)}</span>
+      </div>
+      <button class="btn btn-p btn-s" data-order-product data-type="game" data-name="${safeN}">Заказать</button>
+    </div>
+  </div>`;
+}
+
+function viewHome(){
+  const pop=[...BOTS].sort(()=>Math.random()-.5).slice(0,4);
+  const gp=GAMES.slice(0,3);
+  return `<div class="view on">
+    <div class="hero"><div class="hero-grid">
+      <div>
+        <h1>Telegram-боты <span class="grad">под заказ</span></h1>
+        <p>Выберите шаблон за основу, настройте опции и опишите свои пожелания. Я разработаю бота специально под ваш бизнес. <b style="color:#fbbf24">Цены от 390₽!</b></p>
+        <div class="hero-btns">
+          <button class="btn btn-p btn-lg" data-nav="marketplace">🛍️ Выбрать шаблон</button>
+          <button class="btn btn-g btn-lg" data-nav="builder">🧩 Собрать в конструкторе</button>
+        </div>
+        <div class="stats-row">
+          <div><div class="stat-n">240+</div><div class="stat-l">Ботов сделано</div></div>
+          <div><div class="stat-n">1-3 дня</div><div class="stat-l">Средний срок</div></div>
+          <div><div class="stat-n">4.9★</div><div class="stat-l">Рейтинг</div></div>
+          <div><div class="stat-n">от 390₽</div><div class="stat-l">Мин. цена</div></div>
+        </div>
+      </div>
+      <div class="hero-vis">
+        <div class="fc fc1"><div class="fc-r"><div class="fc-i" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">🤖</div><div><div class="fc-t">AI Sales Bot</div><div class="fc-s">Готов за 2 дня • 2 490₽</div></div></div></div>
+        <div class="fc fc2"><div class="fc-r"><div class="fc-i" style="background:linear-gradient(135deg,#06b6d4,#10b981)">💎</div><div><div class="fc-t">Crypto Shop</div><div class="fc-s">5.0★ • 142 отзыва</div></div></div></div>
+        <div class="fc fc3"><div class="fc-r"><div class="fc-i" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">🎮</div><div><div class="fc-t">Clicker RPG</div><div class="fc-s">Сдан клиенту</div></div></div></div>
+        <div class="fc fc4"><div class="fc-r"><div class="fc-i" style="background:linear-gradient(135deg,#ec4899,#8b5cf6)">⚡</div><div><div class="fc-t">+3 заявки</div><div class="fc-s">За последний час</div></div></div></div>
+      </div>
+    </div></div>
+
+    <div class="promo-cards">
+      <div class="promo-card">
+        <div class="pc-tag">🔥 Хит</div>
+        <h4>Простой бот</h4>
+        <p>Визитка, FAQ, контакты — идеальный старт</p>
+        <div class="pc-price">от 390₽</div>
+        <div class="pc-old">было 690₽</div>
+      </div>
+      <div class="promo-card">
+        <div class="pc-tag">⭐ Популярный</div>
+        <h4>Магазин в Telegram</h4>
+        <p>Каталог + корзина + оплата + админка</p>
+        <div class="pc-price">от 1 490₽</div>
+        <div class="pc-old">было 2 490₽</div>
+      </div>
+      <div class="promo-card">
+        <div class="pc-tag">💎 Премиум</div>
+        <h4>AI-бот на GPT-4</h4>
+        <p>Умный помощник с памятью диалогов</p>
+        <div class="pc-price">от 2 490₽</div>
+        <div class="pc-old">было 4 990₽</div>
+      </div>
+    </div>
+
+    <div class="feats">
+      <div class="feat"><div class="feat-i">💰</div><h3>Доступные цены</h3><p>Боты от 390₽. Прозрачное ценообразование без скрытых платежей.</p></div>
+      <div class="feat"><div class="feat-i">🎯</div><h3>Под ваш бизнес</h3><p>Каждый бот разрабатывается индивидуально под ваши задачи.</p></div>
+      <div class="feat"><div class="feat-i">🧩</div><h3>Гибкая настройка</h3><p>Выберите шаблон и настройте опции в конструкторе.</p></div>
+      <div class="feat"><div class="feat-i">💬</div><h3>Поддержка 30 дней</h3><p>Бесплатные правки и помощь после сдачи проекта.</p></div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><div><h2>🔥 Популярные шаблоны</h2><p>Выберите за основу — я доработаю под вас</p></div><button class="btn btn-g btn-s" data-nav="marketplace">Все →</button></div>
+      <div class="g g4">${pop.map(b=>cardHTML(b,'bot')).join('')}</div>
+    </div>
+
+    <div class="pban">
+      <div style="position:relative;z-index:1"><h3>🎁 Промокод ALASKA40</h3><p>Скидка 40% на первый заказ. Действует на любые шаблоны и конструктор.</p></div>
+      <button class="btn btn-p btn-lg" data-nav="builder">Собрать и заказать →</button>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><div><h2>🎮 Игровые шаблоны</h2><p>Clicker, RPG, экономика, PvP</p></div><button class="btn btn-g btn-s" data-nav="games">Все игры →</button></div>
+      <div class="g g3">${gp.map(g=>gameCardHTML(g)).join('')}</div>
+    </div>
+  </div>`;
+}
+
+function viewMarketplace(){
+  const q=S.search.toLowerCase();
+  const items=BOTS.filter(b=>(S.cat==='all'||b.c===S.cat)&&(!q||b.n.toLowerCase().includes(q)||b.d.toLowerCase().includes(q)));
+  return `<div class="view on"><div class="sec">
+    <div class="sec-h"><div><h2>🛍️ Шаблоны ботов</h2><p>Выберите основу — я разработаю под ваши пожелания</p></div></div>
+    <div class="sbox"><input id="mpSearch" placeholder="Поиск шаблонов..." value="${S.search}"/></div>
+    <div class="chips">${CATS.map(c=>`<button class="chip ${S.cat===c.id?'on':''}" data-cat="${c.id}">${c.i} ${c.n}</button>`).join('')}</div>
+    ${items.length?`<div class="g g3">${items.map(b=>cardHTML(b,'bot')).join('')}</div>`
+    :`<div class="empty"><div class="ei">🔍</div><h3>Ничего не найдено</h3></div>`}
+  </div></div>`;
+}
+
+function viewGames(){
+  const items=GAMES.filter(g=>S.gcat==='all'||g.c===S.gcat);
+  return `<div class="view on"><div class="sec">
+    <div class="sec-h"><div><h2>🎮 Игровые шаблоны</h2><p>Готовые основы для игровых ботов</p></div></div>
+    <div class="chips">${GCATS.map(c=>`<button class="chip ${S.gcat===c.id?'on':''}" data-gcat="${c.id}">${c.n}</button>`).join('')}</div>
+    <div class="g g3">${items.map(g=>gameCardHTML(g)).join('')}</div>
+  </div></div>`;
+}
+
+function viewMiniApps(){
+  const items=MAPPS.filter(m=>S.macat==='all'||m.c===S.macat);
+  return `<div class="view on"><div class="sec">
+    <div class="sec-h"><div><h2>📱 Telegram Mini Apps</h2><p>Web-приложения внутри Telegram</p></div></div>
+    <div class="chips">${MACATS.map(c=>`<button class="chip ${S.macat===c.id?'on':''}" data-macat="${c.id}">${c.n}</button>`).join('')}</div>
+    <div class="g g3">${items.map(m=>cardHTML(m,'miniapp')).join('')}</div>
+  </div></div>`;
+}
+
+function viewBuilder(){
+  const total=S.builder.reduce((s,b)=>s+calcBlockPrice(b),0);
+  const cats={base:'📦 Базовые',pay:'💳 Платежи',adv:'⚡ Продвинутые'};
+  const grouped={};
+  BLOCKS.forEach(b=>{if(!grouped[b.cat])grouped[b.cat]=[];grouped[b.cat].push(b)});
+  
+  let configHTML='';
+  if(S.selectedBlock!==null && S.builder[S.selectedBlock]){
+    const block=S.builder[S.selectedBlock];
+    configHTML=`<div class="config-panel">
+      <h4>⚙️ Настройка: ${block.n}</h4>
+      ${block.cfgDef.map(cfg=>{
+        if(cfg.t==='number'){
+          return `<div class="cfg-field">
+            <label>${cfg.l} (${cfg.min}-${cfg.max})</label>
+            <input type="number" min="${cfg.min}" max="${cfg.max}" value="${block.config[cfg.k]}" data-cfg-block="${S.selectedBlock}" data-cfg-key="${cfg.k}"/>
+            <div style="font-size:10px;color:var(--dim);margin-top:2px">+${formatPrice(cfg.pp)} за единицу</div>
+          </div>`;
+        } else if(cfg.t==='bool'){
+          return `<label class="cfg-check">
+            <input type="checkbox" ${block.config[cfg.k]?'checked':''} data-cfg-block="${S.selectedBlock}" data-cfg-key="${cfg.k}"/>
+            <span>${cfg.l} (+${formatPrice(cfg.pp)})</span>
+          </label>`;
+        }
+      }).join('')}
+    </div>`;
+  }
+  
+  return `<div class="view on"><div class="sec">
+    <div class="sec-h"><div><h2>🧩 Конструктор бота</h2><p>Соберите основу — я разработаю под ваши пожелания</p></div></div>
+    <div class="bld">
+      <div class="bld-p">
+        <h3>📦 Блоки</h3>
+        ${Object.keys(grouped).map(cat=>`
+          <div class="bld-cat">
+            <div class="bld-cat-title">${cats[cat]}</div>
+            ${grouped[cat].map(b=>`<div class="blk" data-addblock="${b.id}"><div class="bi">${b.i}</div><div class="blk-info"><div class="blk-n">${b.n}</div><div class="blk-desc">${b.d}</div></div><div class="blk-p">от ${formatPrice(b.p)}</div></div>`).join('')}
+          </div>
+        `).join('')}
+        <div class="bld-templates">
+          <h3>🎯 Готовые шаблоны</h3>
+          ${TEMPLATES.map(t=>`<div class="bld-tpl" data-tpl="${t.id}"><div class="bld-tpl-n">${t.n}</div><div class="bld-tpl-d">${t.d}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="bld-p">
+        <h3>🏗️ Ваш бот</h3>
+        <div class="canvas">${S.builder.length?S.builder.map((b,idx)=>`<div class="pb ${S.selectedBlock===idx?'sel':''}" data-selectblock="${idx}"><div class="bi">${b.i}</div><div class="pb-info"><div class="pb-n">${b.n}</div><div class="pb-p">${formatPrice(calcBlockPrice(b))}</div><div class="pb-config">${Object.keys(b.config).length?'Настроено: '+Object.keys(b.config).length+' параметр(а)':'Базовая конфигурация'}</div></div><button class="pb-x" data-rmblock="${idx}">✕</button></div>`).join(''):'<div class="canvas-empty"><div class="ce">🧩</div>Кликните на блок слева, чтобы добавить его<br><span style="font-size:12px;margin-top:10px;display:block;color:var(--cyan)">Затем настройте параметры кликом по блоку</span></div>'}</div>
+        ${configHTML}
+      </div>
+      <div class="bld-p">
+        <h3>💰 Ориентировочно</h3>
+        <div class="pbox"><div class="pl">База сборки</div><div class="pv">${formatPrice(total)}</div>
+          <div class="pbd">${S.builder.length?S.builder.map(b=>`<div><span>${b.n}</span><span>${formatPrice(calcBlockPrice(b))}</span></div>`).join('')+`<div class="tot"><span>База</span><span>${formatPrice(total)}</span></div>`:'<div style="text-align:center;padding:10px">Добавьте блоки</div>'}</div>
+          <div style="font-size:10px;color:var(--dim);margin-top:8px;line-height:1.4">* Итоговая цена после обсуждения ТЗ. С промокодом <b style="color:#fbbf24">ALASKA40</b> −40%</div>
+        </div>
+        <button class="btn btn-p btn-full" style="margin-top:14px" data-action="opencheckout" data-source="builder">📝 Оформить заявку</button>
+        <button class="btn btn-g btn-full" style="margin-top:8px" data-action="clearbuild">Очистить</button>
+        <div style="margin-top:14px;padding:12px;background:var(--glass);border-radius:10px;font-size:11px;color:var(--dim);line-height:1.5">💡 <b style="color:var(--txt)">Как это работает:</b> вы собираете основу → оставляете заявку с пожеланиями → я связываюсь и обсуждаю детали → делаю бота → передаю вам.</div>
+      </div>
+    </div>
+  </div></div>`;
+}
+
+function viewMyOrders(){
+  return `<div class="view on"><div class="sec">
+    <div class="sec-h"><div><h2>📦 Мои заказы</h2><p>Статус разработки ваших ботов</p></div></div>
+    ${S.myorders.length?S.myorders.map(o=>renderOrderCard(o,false)).join('')
+    :`<div class="empty"><div class="ei">📦</div><h3>У вас пока нет заказов</h3><p>Выберите шаблон или соберите бота в конструкторе</p><button class="btn btn-p" style="margin-top:14px" data-nav="marketplace">Выбрать шаблон</button></div>`}
+  </div></div>`;
+}
+
+function renderOrderCard(o, isAdmin){
+  const statusLabels={new:'🆕 Новая',progress:'⚙️ В работе',ready:'✅ Готов',done:'📦 Передан'};
+  const statusClass={new:'st-new',progress:'st-progress',ready:'st-ready',done:'st-done'};
+  
+  let blocksHTML='';
+  if(o.template){
+    blocksHTML+=`<div class="req-block"><div class="req-block-t">🎯 Шаблон-основа</div><div class="req-block-v">${o.template}</div></div>`;
+  }
+  if(o.blocks && o.blocks.length){
+    blocksHTML+=`<div class="req-block"><div class="req-block-t">🧩 Блоки конструктора</div><div class="req-block-v">${o.blocks.map(b=>b.n).join(', ')}</div></div>`;
+  }
+  if(o.configSummary){
+    blocksHTML+=`<div class="req-block"><div class="req-block-t">⚙️ Настройки</div><div class="req-block-v">${o.configSummary}</div></div>`;
+  }
+  
+  return `<div class="req-card">
+    <div class="req-head">
+      <div>
+        <div class="req-id">Заказ #${o.id}</div>
+        <div class="req-date">${new Date(o.date).toLocaleString('ru-RU')}</div>
+      </div>
+      <span class="req-status ${statusClass[o.status]}">${statusLabels[o.status]}</span>
+    </div>
+    ${o.product?`<div class="req-block"><div class="req-block-t">🛍️ Товар</div><div class="req-block-v">${o.product}</div></div>`:''}
+    ${blocksHTML}
+    <div class="req-block"><div class="req-block-t">💬 Ваши пожелания</div><div class="req-block-v">${esc(o.wishes||'—')}</div></div>
+    <div class="req-block"><div class="req-block-t">📞 Контакты</div><div class="req-block-v">${esc(o.contact)}</div></div>
+    ${o.price?`<div class="req-block"><div class="req-block-t">💰 Ориентировочная цена</div><div class="req-block-v">${formatPrice(o.price)}</div></div>`:''}
+    ${o.adminNote?`<div class="req-block" style="background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.2)"><div class="req-block-t" style="color:var(--cyan)">💬 Ответ исполнителя</div><div class="req-block-v">${esc(o.adminNote)}</div></div>`:''}
+    ${isAdmin?renderAdminActions(o):''}
+  </div>`;
+}
+
+function renderAdminActions(o){
+  return `<div class="req-actions">
+    <button class="btn btn-s ${o.status==='new'?'btn-p':'btn-g'}" data-admin-status="${o.id}" data-status="new">🆕 Новая</button>
+    <button class="btn btn-s ${o.status==='progress'?'btn-yellow':'btn-g'}" data-admin-status="${o.id}" data-status="progress">⚙️ В работу</button>
+    <button class="btn btn-s ${o.status==='ready'?'btn-green':'btn-g'}" data-admin-status="${o.id}" data-status="ready">✅ Готов</button>
+    <button class="btn btn-s ${o.status==='done'?'btn-green':'btn-g'}" data-admin-status="${o.id}" data-status="done">📦 Передан</button>
+    <button class="btn btn-s btn-g" data-admin-note="${o.id}">💬 Ответить</button>
+    <button class="btn btn-s btn-red" data-admin-delete="${o.id}">🗑️</button>
+  </div>`;
+}
+
+function viewSupport(){
+  const tks=S.tickets.length?S.tickets:[
+    {id:'8832',subj:'Вопрос по оплате',date:new Date().toISOString(),status:'done'},
+    {id:'8831',subj:'Не работает бот',date:new Date(Date.now()-3600000).toISOString(),status:'progress'},
+    {id:'8830',subj:'Возврат средств',date:new Date(Date.now()-7200000).toISOString(),status:'open'},
+  ];
+  return `<div class="view on"><div class="sec">
+    <div class="sec-h"><div><h2>💬 Поддержка</h2><p>Чат и тикеты</p></div></div>
+    <div class="g g2">
+      <div>
+        <h3 style="margin-bottom:10px;font-size:15px">Быстрый чат</h3>
+        <div class="chat">
+          <div class="chat-msgs" id="chatMsgs"><div class="msg msg-in">👋 Привет! Я исполнитель Alaska. Чем помочь?<div class="msg-tm">сейчас</div></div></div>
+          <div class="chat-in"><input class="fi" id="chatIn" placeholder="Напишите..."/><button class="btn btn-p" data-action="sendchat">➤</button></div>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:10px;font-size:15px">Мои тикеты</h3>
+        <button class="btn btn-p btn-full" style="margin-bottom:10px" data-action="openticket">+ Создать тикет</button>
+        ${tks.map(t=>`<div class="tkt"><div><div style="font-weight:600;font-size:13px">${t.subj}</div><div style="font-size:11px;color:var(--dim)">#${t.id} • ${new Date(t.date).toLocaleDateString('ru-RU')}</div></div><span class="req-status ${t.status==='open'?'st-new':t.status==='progress'?'st-progress':'st-ready'}">${t.status==='open'?'Открыт':t.status==='progress'?'В работе':'Решён'}</span></div>`).join('')}
+        <h3 style="margin:16px 0 10px;font-size:15px">FAQ</h3>
+        ${FAQ.map(f=>`<details style="background:var(--glass);border:1px solid var(--bdr);border-radius:10px;padding:10px 12px;margin-bottom:6px;cursor:pointer"><summary style="font-weight:600;font-size:13px;list-style:none;display:flex;justify-content:space-between">${f.q}<span style="color:var(--accent)">+</span></summary><p style="margin-top:8px;font-size:12px;color:var(--dim);line-height:1.5">${f.a}</p></details>`).join('')}
+      </div>
+    </div>
+  </div></div>`;
+}
+
+function viewAdmin(){
+  const tab=S.adminTab;
+  let content='';
+  if(tab==='requests'){
+    const newReqs=S.requests.filter(r=>r.status==='new').length;
+    const progReqs=S.requests.filter(r=>r.status==='progress').length;
+    const readyReqs=S.requests.filter(r=>r.status==='ready').length;
+    const doneReqs=S.requests.filter(r=>r.status==='done').length;
+    content=`
+      <div class="g g4" style="margin-bottom:16px">
+        <div class="sc"><div class="sl">Новых заявок</div><div class="sv" style="color:#a5b4fc">${newReqs}</div></div>
+        <div class="sc"><div class="sl">В работе</div><div class="sv" style="color:#fbbf24">${progReqs}</div></div>
+        <div class="sc"><div class="sl">Готово</div><div class="sv" style="color:#6ee7b7">${readyReqs}</div></div>
+        <div class="sc"><div class="sl">Передано</div><div class="sv">${doneReqs}</div></div>
+      </div>
+      ${S.requests.length?S.requests.map(r=>renderOrderCard(r,true)).join('')
+      :`<div class="empty"><div class="ei">📭</div><h3>Заявок пока нет</h3><p>Когда клиент оставит заявку — она появится здесь</p></div>`}
+    `;
+  } else if(tab==='stats'){
+    const totalRevenue=S.requests.filter(r=>r.price).reduce((s,r)=>s+r.price,0);
+    content=`<div class="g g4" style="margin-bottom:16px">
+      <div class="sc"><div class="sl">Всего заявок</div><div class="sv">${S.requests.length}</div></div>
+      <div class="sc"><div class="sl">Выручка</div><div class="sv">${formatPrice(totalRevenue)}</div></div>
+      <div class="sc"><div class="sl">Средний чек</div><div class="sv">${S.requests.length?formatPrice(Math.round(totalRevenue/S.requests.length)):'0₽'}</div></div>
+      <div class="sc"><div class="sl">Конверсия</div><div class="sv">—</div></div>
+    </div>
+    <div class="info-box"><b>💡 Совет:</b> здесь отображается статистика по реальным заявкам клиентов.</div>`;
+  } else if(tab==='templates'){
+    content=`<div class="info-box"><b>📦 Шаблоны-основы</b> — это заготовки, от которых вы отталкиваетесь при разработке.</div>
+    <div class="g g3">${BOTS.map(b=>`<div class="req-card"><div style="display:flex;gap:10px;align-items:center;margin-bottom:8px"><div style="font-size:24px">${b.i}</div><div><div style="font-weight:700">${b.n}</div><div style="font-size:11px;color:var(--dim)">от ${formatPrice(b.p)}</div></div></div><div style="font-size:12px;color:var(--dim)">${b.d}</div></div>`).join('')}</div>`;
+  }
+  
+  return `<div class="view on"><div class="sec">
+    <div class="sec-h"><div><h2>⚙️ Админ-панель</h2><p>Управление заявками клиентов</p></div></div>
+    <div class="atabs">
+      <button class="atab ${tab==='requests'?'on':''}" data-atab="requests">📥 Заявки ${S.requests.filter(r=>r.status==='new').length?'('+S.requests.filter(r=>r.status==='new').length+')':''}</button>
+      <button class="atab ${tab==='stats'?'on':''}" data-atab="stats">📊 Статистика</button>
+      <button class="atab ${tab==='templates'?'on':''}" data-atab="templates">📦 Шаблоны</button>
+    </div>
+    ${content}
+  </div></div>`;
+}
+
+function openProductModal(type,name){
+  let item;
+  if(type==='bot') item=BOTS.find(b=>b.n===name);
+  else if(type==='game') item=GAMES.find(g=>g.n===name);
+  else item=MAPPS.find(m=>m.n===name);
+  if(!item)return;
+  const r=stars(),rc=revCnt();
+  const safeN=name.replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  $('#mOrderBody').innerHTML=`
+    <button class="modal-x" data-close="mOrder">✕</button>
+    <div style="display:flex;gap:16px;align-items:center;margin-bottom:20px">
+      <div style="width:68px;height:68px;border-radius:18px;display:grid;place-items:center;font-size:34px;background:linear-gradient(135deg,rgba(99,102,241,.25),rgba(6,182,212,.18));border:1px solid var(--bdr2);flex-shrink:0">${item.i}</div>
+      <div>
+        <div style="font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.8px;margin-bottom:2px">${catName(item.c,type==='game'?GCATS:type==='miniapp'?MACATS:CATS)}</div>
+        <h2 style="font-size:20px;font-weight:700">${item.n}</h2>
+        <div class="rating" style="margin-top:4px">★ ${r} <span class="cnt">• ${rc} отзывов</span></div>
+      </div>
+    </div>
+    <div style="margin:10px 0">
+      ${item.old?`<span class="price-old" style="font-size:16px">${formatPrice(item.old)}</span>`:''}
+      <span style="font-size:28px;font-weight:800">от ${formatPrice(item.p)}</span>
+      ${item.sale?'<span style="background:linear-gradient(135deg,#ef4444,#f59e0b);color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;margin-left:8px">-'+Math.round((1-item.p/item.old)*100)+'%</span>':''}
+    </div>
+    <div style="color:var(--dim);font-size:13px;line-height:1.6;margin-bottom:20px">${item.d}</div>
+    <div style="margin-bottom:20px"><div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#a5b4fc;margin-bottom:10px;font-weight:700">Что входит</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        ${['Разработка под вас','Документация','Деплой и настройка','30 дней поддержки','Исходный код','Правки по ТЗ'].map(f=>`<div style="display:flex;gap:6px;align-items:center;font-size:12px;padding:8px;background:var(--glass);border-radius:8px;border:1px solid var(--bdr)"><span style="color:var(--green);font-weight:700">✓</span>${f}</div>`).join('')}
+      </div>
+    </div>
+    <div class="info-box" style="background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.25)"><b style="color:#fbbf24">🎁 Промокод ALASKA40</b> — скидка 40% на первый заказ. Укажите его в заявке.</div>
+    <button class="btn btn-p btn-lg btn-full" data-order-product data-type="${type}" data-name="${safeN}">📝 Оставить заявку на разработку</button>
+    <div style="text-align:center;margin-top:10px;font-size:11px;color:var(--dim)">После заявки я свяжусь с вами в течение 1-2 часов</div>
+  `;
+  $('#mOrder').classList.add('open');
+}
+
+function openCheckout(source, product, type){
+  let templateName='';
+  let blocks=[];
+  let basePrice=0;
+  
+  if(source==='builder'){
+    if(!S.builder.length){toast('Сначала соберите бота');return}
+    blocks=S.builder.map(b=>({n:b.n,config:{...b.config}}));
+    basePrice=S.builder.reduce((s,b)=>s+calcBlockPrice(b),0);
+  } else if(product){
+    templateName=product;
+    let item;
+    if(type==='bot') item=BOTS.find(b=>b.n===product);
+    else if(type==='game') item=GAMES.find(g=>g.n===product);
+    else item=MAPPS.find(m=>m.n===product);
+    if(item) basePrice=item.p;
+  }
+  
+  $('#mOrderBody').innerHTML=`
+    <button class="modal-x" data-close="mOrder">✕</button>
+    <h2 style="margin-bottom:4px">📝 Заявка на разработку</h2>
+    <p style="color:var(--dim);font-size:13px;margin-bottom:16px">Заполните форму — я свяжусь с вами для уточнения деталей</p>
+    
+    <div class="checkout-summary">
+      ${templateName?`<div class="checkout-row"><span>🎯 Шаблон-основа:</span><span style="font-weight:600">${templateName}</span></div>`:''}
+      ${blocks.length?`<div class="checkout-row"><span>🧩 Блоков в сборке:</span><span style="font-weight:600">${blocks.length}</span></div>`:''}
+      <div class="checkout-row"><span>💰 Ориентировочно:</span><span style="font-weight:600">от ${formatPrice(basePrice)}</span></div>
+      <div class="checkout-total"><span>Итоговая цена после ТЗ</span></div>
+    </div>
+    
+    <div class="info-box" style="background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.25)"><b style="color:#fbbf24">🎁 Промокод ALASKA40</b> — введите его ниже и получите скидку 40% на первый заказ!</div>
+    
+    <div class="fg"><label>👤 Ваше имя / ник</label><input class="fi" id="ordName" placeholder="Например: Иван или @username"/></div>
+    <div class="fg"><label>📞 Как с вами связаться?</label><input class="fi" id="ordContact" placeholder="Telegram: @username или телефон"/></div>
+    <div class="fg"><label>🎟️ Промокод (если есть)</label><input class="fi" id="ordPromo" placeholder="ALASKA40"/></div>
+    <div class="fg"><label>💬 Ваши пожелания к боту</label><textarea class="fi" id="ordWishes" style="min-height:120px" placeholder="Опишите, что должен делать бот, какие функции нужны, особенности, референсы, сроки..."></textarea></div>
+    <div class="fg"><label>⏰ Желаемые сроки</label>
+      <select class="fi" id="ordDeadline">
+        <option>Как можно быстрее (1-3 дня)</option>
+        <option>В течение недели</option>
+        <option>2-3 недели</option>
+        <option>Не срочно, обсудим</option>
+      </select>
+    </div>
+    <div class="fg"><label>💵 Примерный бюджет</label>
+      <select class="fi" id="ordBudget">
+        <option>до 1 000₽</option>
+        <option>1 000 — 3 000₽</option>
+        <option>3 000 — 5 000₽</option>
+        <option>5 000 — 10 000₽</option>
+        <option>от 10 000₽</option>
+        <option>Обсудим после ТЗ</option>
+      </select>
+    </div>
+    
+    <button class="btn btn-p btn-lg btn-full" data-action="submitrequest" data-source="${source}" data-product="${(product||'').replace(/"/g,'&quot;')}" data-type="${type||''}">📨 Отправить заявку</button>
+    <div style="text-align:center;margin-top:10px;font-size:11px;color:var(--dim)">Отправляя заявку, вы соглашаетесь на обработку данных</div>
+  `;
+  $('#mOrder').classList.add('open');
+}
+
+function submitRequest(source, product, type){
+  const name=$('#ordName').value.trim();
+  const contact=$('#ordContact').value.trim();
+  const wishes=$('#ordWishes').value.trim();
+  const deadline=$('#ordDeadline').value;
+  const budget=$('#ordBudget').value;
+  const promo=$('#ordPromo').value.trim().toUpperCase();
+  
+  if(!name||!contact||!wishes){toast('Заполните все обязательные поля');return}
+  
+  const id=uid().toUpperCase().slice(0,6);
+  const request={
+    id,
+    date:new Date().toISOString(),
+    status:'new',
+    source,
+    product: product || null,
+    productType: type || null,
+    template: source==='builder' ? null : product,
+    blocks: source==='builder' ? S.builder.map(b=>({n:b.n,config:{...b.config}})) : [],
+    configSummary: source==='builder' ? S.builder.map(b=>{
+      const cfg=Object.keys(b.config).map(k=>{
+        const def=b.cfgDef.find(c=>c.k===k);
+        if(!def)return null;
+        if(def.t==='bool') return b.config[k]?def.l:null;
+        return def.l+': '+b.config[k];
+      }).filter(Boolean).join(', ');
+      return b.n+(cfg?' ('+cfg+')':'');
+    }).join('\n') : '',
+    price: source==='builder' ? S.builder.reduce((s,b)=>s+calcBlockPrice(b),0) : 0,
+    name,
+    contact,
+    wishes,
+    deadline,
+    budget,
+    promo: promo || null,
+    adminNote:''
+  };
+  
+  S.requests.unshift(request);
+  S.myorders.unshift({
+    id,
+    date:request.date,
+    status:'new',
+    product: product || null,
+    template: request.template,
+    blocks: request.blocks,
+    configSummary: request.configSummary,
+    price: request.price,
+    wishes,
+    contact,
+    deadline,
+    budget,
+    promo: promo || null,
+    adminNote:''
+  });
+  
+  if(source==='builder'){
+    S.builder=[];
+  }
+  
+  save();
+  badges();
+  $('#mOrder').classList.remove('open');
+
+  if(tg){
+    try{
+      tg.sendData(JSON.stringify({
+        id,
+        product: request.template || request.product || (source==='builder'?'Сборка из конструктора':'Заказ'),
+        wishes: wishes + (request.configSummary? ('\n\nБлоки: '+request.configSummary):'') + '\nСроки: '+deadline+'\nБюджет: '+budget,
+        contact,
+        name,
+        price: request.price || 0,
+        promo: promo || ''
+      }));
+    }catch(e){}
+  }
+
+  const promoMsg = promo==='ALASKA40' ? ' Промокод ALASKA40 применён! 🎁' : '';
+  toast('✓ Заявка #'+id+' отправлена!'+promoMsg);
+  go('myorders');
+}
+
+function adminSetStatus(id,status){
+  const req=S.requests.find(r=>r.id===id);
+  const my=S.myorders.find(o=>o.id===id);
+  if(req) req.status=status;
+  if(my) my.status=status;
+  save();badges();renderView();
+  const labels={new:'Новая',progress:'В работе',ready:'Готов',done:'Передан'};
+  toast('Статус #'+id+' → '+labels[status]);
+}
+
+function adminSetNote(id){
+  const note=prompt('Ваш ответ клиенту по заказу #'+id+':');
+  if(note===null) return;
+  const req=S.requests.find(r=>r.id===id);
+  const my=S.myorders.find(o=>o.id===id);
+  if(req) req.adminNote=note;
+  if(my) my.adminNote=note;
+  save();renderView();
+  toast('Ответ отправлен клиенту');
+}
+
+function adminDelete(id){
+  if(!confirm('Удалить заявку #'+id+'?')) return;
+  S.requests=S.requests.filter(r=>r.id!==id);
+  S.myorders=S.myorders.filter(o=>o.id!==id);
+  save();badges();renderView();
+  toast('Заявка удалена');
+}
+
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-nav]');
+  if(t){e.preventDefault();go(t.dataset.nav);return}
+
+  const closeBtn=e.target.closest('[data-close]');
+  if(closeBtn){$('#'+closeBtn.dataset.close).classList.remove('open');return}
+
+  if(e.target.classList.contains('modal-bg')){e.target.classList.remove('open');return}
+
+  const prod=e.target.closest('[data-product]');
+  if(prod && !e.target.closest('[data-order-product]')){
+    openProductModal(prod.dataset.type,prod.dataset.name);return;
+  }
+
+  const orderProd=e.target.closest('[data-order-product]');
+  if(orderProd){
+    $('#mOrder').classList.remove('open');
+    openCheckout('product',orderProd.dataset.name,orderProd.dataset.type);
+    return;
+  }
+
+  const addBlockBtn=e.target.closest('[data-addblock]');
+  if(addBlockBtn){
+    const blockDef=BLOCKS.find(b=>b.id===addBlockBtn.dataset.addblock);
+    if(!blockDef)return;
+    const config={};
+    blockDef.cfg.forEach(cfg=>{config[cfg.k]=cfg.def});
+    S.builder.push({id:blockDef.id,n:blockDef.n,i:blockDef.i,basePrice:blockDef.p,cfgDef:blockDef.cfg,config});
+    S.selectedBlock=S.builder.length-1;
+    save();renderView();
+    toast('✓ '+blockDef.n+' добавлен');
+    return;
+  }
+
+  const rmBlk=e.target.closest('[data-rmblock]');
+  if(rmBlk){e.stopPropagation();S.builder.splice(+rmBlk.dataset.rmblock,1);if(S.selectedBlock>=S.builder.length)S.selectedBlock=S.builder.length-1;save();renderView();return}
+
+  const selBlk=e.target.closest('[data-selectblock]');
+  if(selBlk){S.selectedBlock=+selBlk.dataset.selectblock;renderView();return}
+
+  const tpl=e.target.closest('[data-tpl]');
+  if(tpl){
+    const t=TEMPLATES.find(x=>x.id===tpl.dataset.tpl);
+    if(!t)return;
+    S.builder=[];
+    t.blocks.forEach(bid=>{
+      const bd=BLOCKS.find(b=>b.id===bid);
+      if(bd){const cfg={};bd.cfg.forEach(c=>{cfg[c.k]=c.def});S.builder.push({id:bd.id,n:bd.n,i:bd.i,basePrice:bd.p,cfgDef:bd.cfg,config:cfg})}
+    });
+    S.builderTemplate=t.id;
+    S.selectedBlock=null;
+    save();renderView();
+    toast('Шаблон '+t.n+' применён');
+    return;
+  }
+
+  const cat=e.target.closest('[data-cat]');
+  if(cat){S.cat=cat.dataset.cat;renderView();return}
+  const gcat=e.target.closest('[data-gcat]');
+  if(gcat){S.gcat=gcat.dataset.gcat;renderView();return}
+  const macat=e.target.closest('[data-macat]');
+  if(macat){S.macat=macat.dataset.macat;renderView();return}
+
+  const atab=e.target.closest('[data-atab]');
+  if(atab){S.adminTab=atab.dataset.atab;renderView();return}
+
+  const adminStatus=e.target.closest('[data-admin-status]');
+  if(adminStatus){adminSetStatus(adminStatus.dataset.adminStatus,adminStatus.dataset.status);return}
+  const adminNote=e.target.closest('[data-admin-note]');
+  if(adminNote){adminSetNote(adminNote.dataset.adminNote);return}
+  const adminDel=e.target.closest('[data-admin-delete]');
+  if(adminDel){adminDelete(adminDel.dataset.adminDelete);return}
+
+  const act=e.target.closest('[data-action]');
+  if(act){
+    const a=act.dataset.action;
+    if(a==='opencheckout'){openCheckout(act.dataset.source);return}
+    if(a==='submitrequest'){submitRequest(act.dataset.source,act.dataset.product,act.dataset.type);return}
+    if(a==='clearbuild'){if(!S.builder.length||confirm('Очистить сборку?')){S.builder=[];S.selectedBlock=null;S.builderTemplate=null;save();renderView()}return}
+    if(a==='openticket'){$('#mTicket').classList.add('open');return}
+    if(a==='sendchat'){sendChat();return}
+    return;
+  }
+});
+
+document.addEventListener('input',e=>{
+  if(e.target.id==='mpSearch'){S.search=e.target.value;renderView();const inp=$('#mpSearch');if(inp){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length)}}
+  if(e.target.dataset.cfgBlock!==undefined){
+    const blockIdx=+e.target.dataset.cfgBlock;
+    const key=e.target.dataset.cfgKey;
+    const block=S.builder[blockIdx];
+    if(block){
+      const cfgDef=block.cfgDef.find(c=>c.k===key);
+      if(cfgDef){
+        if(cfgDef.t==='number'){let val=parseInt(e.target.value)||cfgDef.min;val=Math.max(cfgDef.min,Math.min(cfgDef.max,val));block.config[key]=val}
+        else if(cfgDef.t==='bool'){block.config[key]=e.target.checked}
+        save();
+        const total=S.builder.reduce((s,b)=>s+calcBlockPrice(b),0);
+        const pvEl=$('.pbox .pv');
+        if(pvEl) pvEl.textContent=formatPrice(total);
+      }
+    }
+  }
+});
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&e.target.id==='chatIn'){e.preventDefault();sendChat()}
+});
+
+function sendChat(){
+  const inp=$('#chatIn');if(!inp)return;
+  const txt=inp.value.trim();if(!txt)return;
+  const msgs=$('#chatMsgs');
+  msgs.innerHTML+=`<div class="msg msg-out">${esc(txt)}<div class="msg-tm">сейчас</div></div>`;
+  inp.value='';msgs.scrollTop=msgs.scrollHeight;
+  setTimeout(()=>{
+    const reps=['Привет! Напишите ваш вопрос, я отвечу в течение часа.','Понял, сейчас посмотрю.','Можем обсудить в Telegram — напишите ваш @username.','Да, это возможно. Давайте уточним детали.','Отправил информацию на почту.'];
+    msgs.innerHTML+=`<div class="msg msg-in">${reps[Math.floor(Math.random()*reps.length)]}<div class="msg-tm">сейчас</div></div>`;
+    msgs.scrollTop=msgs.scrollHeight;
+  },800);
+}
+
+$('#btnSubmitTicket').addEventListener('click',()=>{
+  const subj=$('#tSubj').value.trim();
+  const text=$('#tText').value.trim();
+  if(!subj||!text){toast('Заполните все поля');return}
+  S.tickets.unshift({id:uid().slice(-6),date:new Date().toISOString(),subj,status:'open'});
+  save();$('#tSubj').value='';$('#tText').value='';
+  $('#mTicket').classList.remove('open');
+  toast('✓ Тикет создан');renderView();
+});
+
+function init(){
+  initNav();badges();
+  const h=location.hash.replace('#','');
+  go(VIEWS.includes(h)?h:'home');
+  // Анимация слотов
+  setInterval(()=>{
+    const el=$('#slotsLeft');
+    if(el && Math.random()<0.3){
+      const cur=parseInt(el.textContent);
+      if(cur>3) el.textContent=cur-1;
+    }
+  },15000);
+}
+init();
+</script>
+</body>
+</html>

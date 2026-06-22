@@ -4,31 +4,10 @@ import logging
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import CommandStart
 from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton, WebAppInfo, WebAppData
-from aiogram.client.session.aiohttp import AiohttpSession
-from aiohttp_socks import ProxyConnector
 from config import BOT_TOKEN, TMA_URL, ADMIN_ID
 
 logging.basicConfig(level=logging.INFO)
 dp = Dispatcher()
-
-# ============================================================
-# ПРОКСИ НАСТРОЙКА
-# ============================================================
-# Замени на свой прокси (формат: socks5://[user:pass@]host:port)
-PROXY_URL = 'socks5://185.231.232.11:1080'  # Бесплатный прокси (может не работать)
-
-async def create_bot():
-    """Создает бота с прокси"""
-    try:
-        connector = ProxyConnector.from_url(PROXY_URL)
-        session = AiohttpSession(connector=connector)
-        bot = Bot(token=BOT_TOKEN, session=session)
-        logging.info(f"✅ Бот создан с прокси: {PROXY_URL}")
-        return bot
-    except Exception as e:
-        logging.error(f"❌ Ошибка создания бота с прокси: {e}")
-        logging.info("⚠️ Пробую без прокси...")
-        return Bot(token=BOT_TOKEN)
 
 # ============================================================
 # КЛАВИАТУРЫ
@@ -68,7 +47,7 @@ async def process_webapp_data(message: Message, web_app_data: WebAppData):
         name = data.get('name', '')
         price = data.get('price', 0)
         promo = data.get('promo', '')
-        
+
         admin_text = (
             f"🆕 <b>НОВАЯ ЗАЯВКА #{order_id}</b>\n\n"
             f"👤 <b>{name}</b>\n"
@@ -79,7 +58,7 @@ async def process_webapp_data(message: Message, web_app_data: WebAppData):
             f"💬 <b>Пожелания:</b>\n{wishes}"
         )
         await message.bot.send_message(ADMIN_ID, admin_text, parse_mode="HTML")
-        
+
         promo_text = f"\n\n🎁 Промокод {promo} применён! Скидка 40%" if promo == "ALASKA40" else ""
         await message.answer(
             f"✅ <b>Заявка #{order_id} принята!</b>\n\n"
@@ -110,17 +89,9 @@ async def support(message: Message):
 # ЗАПУСК
 # ============================================================
 async def main():
-    bot = await create_bot()
+    bot = Bot(token=BOT_TOKEN)
     print("✅ Бот запущен!")
-    try:
-        await dp.start_polling(bot)
-    except Exception as e:
-        logging.error(f"❌ Критическая ошибка: {e}")
-        print("\n💡 Возможные решения:")
-        print("1. Проверь прокси - может быть нерабочим")
-        print("2. Попробуй другой прокси")
-        print("3. Купи прокси на proxy-seller.com")
-        print("4. Используй VPS за рубежом")
+    await dp.start_polling(bot)
 
 if __name__ == "__main__":
     asyncio.run(main())
